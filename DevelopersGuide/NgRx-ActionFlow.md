@@ -15,4 +15,4 @@
 
 It is useful to think of a simple queue of actions managed by the store. Dispatched actions (sync or async) are processed one after the other first by the reducers then by the effects.
 
-![ActionFlow chart](./images/NgRx-ActionFlow.png)
+![ActionFlow chart](./NgRx-ActionFlow.pdf)
