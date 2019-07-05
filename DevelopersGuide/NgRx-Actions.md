@@ -35,6 +35,8 @@ By using actions it is easy to produce bugs that are difficult to trace. These b
 
 ### Different targets
 ![Simple multi target action chart](./images/NgRx-Actions-Simple-Multi-Target1.png)
+
+### Target chain
 ![Simple multi target action chart](./images/NgRx-Actions-Simple-Multi-Target2.png)
 
 The problems mainly occur if different developers, or the same developer at different times uses an already defined action. The following use cases try to explain these problems. In all examples a second developer uses actions with an already defined action-target flow by a first developer.
@@ -70,7 +72,7 @@ As for all action types the name of the action describes the intent / next state
     Login.type = '[User/LoginPage] Login button clicked'
     SendSamples.type = '[Samples/ValidateSamples]  Samples successfully validated'
     
-### Multi action
+### Action (Multiple sources)
 
 This is an action with multiple sources. It has no information about the specific source it was dispatched from. All target effects are desired for all sources.
 * A developer can reuse this action. He must check all sources and targets of the action for undesired side-effects when dispatching it again.
@@ -87,7 +89,7 @@ See event action. The action.type describes the action itself and where the acti
     LoginAction.type = '[User/Login] Login user'
     SendSamplesAction.type = '[Samples/SendSamples] Send samples to server'
     
-### Command actions
+### Command action
 
 The command action is an action with multiple sources. It has information about the specific source it was dispatched from. Targets react only to specified sources of the action.
 * A developer can reuse this action. He must add the new source to the desired targets of the action.
