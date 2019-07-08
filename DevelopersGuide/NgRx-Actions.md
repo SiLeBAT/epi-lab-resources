@@ -1,9 +1,9 @@
 # NgRx - Actions
 
+## Overview of using actions
 **Style guide for defining actions**
 * https://ngrx.io/guide/store/actions
 
-## Overview of using actions
 Actions are mainly used to describe the UI-Flow and corresponding state transitions of an app. They can be triggered by different sources:
 * The user interacting with the app
 * The app reacting to a server event
