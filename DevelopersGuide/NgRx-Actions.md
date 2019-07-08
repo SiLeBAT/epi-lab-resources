@@ -4,7 +4,6 @@
 * https://ngrx.io/guide/store/actions
 
 ## Overview of using actions
-
 Actions are mainly used to describe the UI-Flow and corresponding state transitions of an app. They can be triggered by different sources:
 * The user interacting with the app
 * The app reacting to a server event
@@ -27,7 +26,6 @@ Both patterns change the state of the app, so these are both referenced as a tar
 ![Simple action chart](./images/NgRx-Actions-Simple.png)
 
 ## Problems with using actions
-
 By using actions it is easy to produce bugs that are difficult to trace. These bugs are mainly produced if an action has different sources and targets. So it is recommended by NgRx to use only actions with a single unique source. We decided to use also actions with different sources, but take special precautions to avoid undesired behaviour.
 
 ### Different sources
@@ -52,53 +50,78 @@ The developer writes a new target B with a side effect for an action. He is targ
 ![New target problem chart](./images/NgRx-Actions-Problem-New-Target.png)
 
 ## Style Guide
+To reduce bugs from the described problems we define rules for using actions by defining three semantic types of actions. The types are  defined by the number of sources dispatching these actions and if different targets for the actions are allowed.
 
-To reduce bugs from the described problems we define rules for using actions by defining three semantic types of actions. The types are mainly defined by the number of sources dispatching these actions.
-
-### Event action
-
+### Event *action* (single source)
 This is an action as recommended by NgRx. It has a single unique source, that means there is only one line of code where it is dispatched.
+
+![Event type chart](./images/NgRx-Actions-Type-Event.png)
+
+#### When to use it
+The action can be used when there is a unique event (like a click on a unique button) with a unique chain of targets handling the action. The typical usecase is an action source triggering an event.
+
+#### Where to define it
+The action should be defined near the component dispatching that action.
+
+#### Precautions
 * A developer is not allowed to reuse this action. He can change the action to one of the other two types, check all targets and side-effects and then reuse the action.
 * A developer is allowed to add new targets for the action.
 
-![Event action chart](./images/NgRx-Actions-Type-Event.png)
+#### Naming convention
+As for all action types the name of the action describes the intent / next state of the application. The action.type describes the event that triggered the action.
 
-**Naming convention**
-
-As for all action types the name of the action describes the intent / next state of the application. The action.type describes the source and the event that triggered the action.
-
-    <Intent>.type = '[<Module>/<Source component or source sub module>] <Description of event>'
+    <Intent>Event.type = '[<Module>/<Source component or source sub module>] <Description of event>'
     
-    Login.type = '[User/LoginPage] Login button clicked'
-    SendSamples.type = '[Samples/ValidateSamples]  Samples successfully validated'
+    LoginEvent.type = '[User/LoginPage] Login button clicked'
+    SendSamplesEvent.type = '[Samples/ValidateSamples]  Samples successfully validated'
     
-### Action (Multiple sources)
+#### Example
+![Event example chart](./images/NgRx-Actions-Example-Event.png)
 
-This is an action with multiple sources. It has no information about the specific source it was dispatched from. All target effects are desired for all sources.
-* A developer can reuse this action. He must check all sources and targets of the action for undesired side-effects when dispatching it again.
-* A developer can add a new target for the action. He must check all sources and targets of the action for undesired side-effects produced by the new target.
+### *Multi* action (multiple sources, same targets)
+This is an action with multiple sources. It has no information about the specific source it was dispatched from. All targets react to the action in the same way.
 
-![Action action chart](./images/NgRx-Actions-Type-Action.png)
+![Action type chart](./images/NgRx-Actions-Type-Action.png)
 
-**Naming convention**
+#### When to use it
+This action can be used when multiple sources (like multiple login buttons on the page) have the same effects in the application. The typical usecase is a target reacting to a common event.
 
-See event action. The action.type describes the action itself and where the action is defined or handled.
+#### Where to define it
+The action should be defined near the target that handles it.
+
+#### Precautions
+* A developer is allowed to reuse this action. He must check all sources and targets of the action for undesired side-effects when dispatching it again.
+* A developer is allowed to add a new target for the action. He must check all sources and targets of the action for undesired side-effects produced by the new target.
+
+#### Naming convention
+See event action. The action.type describes the effect the action will trigger.
 
     <Intent>Action.type = '[<Module>/<Action sub module>] <Description of action>'
     
     LoginAction.type = '[User/Login] Login user'
     SendSamplesAction.type = '[Samples/SendSamples] Send samples to server'
     
-### Command action
+#### Example
+![Action example chart](./images/NgRx-Actions-Example-Action.png)
 
-The command action is an action with multiple sources. It has information about the specific source it was dispatched from. Targets react only to specified sources of the action.
-* A developer can reuse this action. He must add the new source to the desired targets of the action.
-* A developer can add a new target for the action. He must specify the sources the new target shall listen for.
+### Command *action* (multiple sources, different targets)
+The command action is an action with multiple sources. It has information about the specific source it was dispatched from. Targets can react accordingly to the action's source.
 
-![Command action chart](./images/NgRx-Actions-Type-Command.png)
+To use command actions the developer must implement a technique to store the source of a command. A command/response pattern is already implemented and can be used. It is described in the corresponding NgRx-CommandAPI document.
 
-**Naming convention**
+![Command type chart](./images/NgRx-Actions-Type-Command.png)
 
+#### When to use it
+This action can be used when multiple sources (like a logout button and a time triggered logout) trigger different side effects (like showing a different logout message to the user) and have also a common side effect (like logging out the user). The typical usecase is a target reacting to a common event with different behaviour dependent on the event source.
+
+#### Where to define it
+The action should be defined near the target that handles it.
+
+#### Precautions
+* A developer is allowed to reuse this action. He must handle the new source in the desired targets of the action.
+* A developer is allowed to add a new target for the action. He must specify the sources the new target shall listen for.
+
+#### Naming convention
 See multi action.
 
     <Intent>Command.type = '[<Module>/<Action sub module>] <Description of action>'
@@ -106,4 +129,5 @@ See multi action.
     LoginCommand.type = '[User/Login] Login user'
     SendSamplesCommand.type = '[Samples/SendSamples] Send samples to server'
     
-To use command actions the developer must implement a technique to store the source of a command. A command/response pattern is already implemented and can be used. It is described in the corresponding DevGuide document.
+#### Example
+![Command example chart](./images/NgRx-Actions-Example-Command.png)
