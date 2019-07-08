@@ -52,7 +52,7 @@ The developer writes a new target B with a side effect for an action. He is targ
 ## Style Guide
 To reduce bugs from the described problems we define rules for using actions by defining three semantic types of actions. The types are  defined by the number of sources dispatching these actions and if different targets for the actions are allowed.
 
-### Event *action* (single source)
+### *Event* action (single source)
 This is an action as recommended by NgRx. It has a single unique source, that means there is only one line of code where it is dispatched.
 
 ![Event type chart](./images/NgRx-Actions-Type-Event.png)
@@ -78,7 +78,7 @@ As for all action types the name of the action describes the intent / next state
 #### Example
 ![Event example chart](./images/NgRx-Actions-Example-Event.png)
 
-### *Multi* action (multiple sources, same targets)
+### Multi *action* (multiple sources, same targets)
 This is an action with multiple sources. It has no information about the specific source it was dispatched from. All targets react to the action in the same way.
 
 ![Action type chart](./images/NgRx-Actions-Type-Action.png)
@@ -104,7 +104,7 @@ See event action. The action.type describes the effect the action will trigger.
 #### Example
 ![Action example chart](./images/NgRx-Actions-Example-Action.png)
 
-### Command *action* (multiple sources, different targets)
+### *Command* action (multiple sources, different targets)
 The command action is an action with multiple sources. It has information about the specific source it was dispatched from. Targets can react accordingly to the action's source.
 
 To use command actions the developer must implement a technique to store the source of a command. A command/response pattern is already implemented and can be used. It is described in the corresponding NgRx-CommandAPI document.
