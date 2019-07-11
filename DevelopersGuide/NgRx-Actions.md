@@ -13,7 +13,7 @@ For a developer there are two main places where to use actions:
 
 **An action can be dispatched by a source**
 
-An action can be dispatched by different sources anywhere in the code. This could be e.g. a component, an effect or a service.
+An action can be dispatched by different sources anywhere in the code. This could be e.g. a component, an effect or a service. Note that it is not recommended to dispatch actions from services.
 
 **A target can react to an action**
 
@@ -49,85 +49,171 @@ The developer writes a new target B with a side effect for an action. He is targ
 
 ![New target problem chart](./images/NgRx-Actions-Problem-New-Target.png)
 
-## Style Guide
-To reduce bugs from the described problems we define rules for using actions by defining three semantic types of actions. The types are  defined by the number of sources dispatching these actions and if different targets for the actions are allowed.
+## Differentiating actions
 
-### *Event* action (single source)
-This is an action as recommended by NgRx. It has a single unique source, that means there is only one line of code where it is dispatched.
+Actions can be differentiated by the number of sources dispatching these actions. If there are multiple sources it is also relevant if there are differnt targets for different sources.
 
-![Event type chart](./images/NgRx-Actions-Type-Event.png)
+### Single source action
+This is an action as recommended by NgRx. It has a single unique source, that means there is only one line of code where it is dispatched. These actions behave like an event. A source is triggering the event and the targets are subscribing to that event.
 
-#### When to use it
-The action can be used when there is a unique event (like a click on a unique button) with a unique chain of targets handling the action. The typical usecase is an action source triggering an event.
+![Single source chart](./images/NgRx-Actions-Type-Single-Source.png)
 
-#### Where to define it
-The action should be defined near the component dispatching that action.
+#### Use case
+The action can be used when there is a unique event (like a click on a unique login button) with a unique chain of targets handling the action.
+  
+#### Example
+![Single source example chart](./images/NgRx-Actions-Example-Single-Source.png)
 
-#### Precautions
-* A developer is not allowed to reuse this action. He can change the action to one of the other two types, check all targets and side-effects and then reuse the action.
-* A developer is allowed to add new targets for the action.
+### Multi source action (same targets)
+This is an action with multiple sources. It has no information about the specific source it was dispatched from. All targets react to the action in the same way. These actions behave like an operation. A source is calling the operation and the targets proccess that operation.
 
-#### Naming convention
-As for all action types the name of the action describes the intent / next state of the application. The action.type describes the event that triggered the action.
+![Multi source chart](./images/NgRx-Actions-Type-Multi-Source.png)
 
-    <Intent>Event.type = '[<Module>/<Source component or source sub module>] <Description of event>'
-    
-    LoginEvent.type = '[User/LoginPage] Login button clicked'
-    SendSamplesEvent.type = '[Samples/ValidateSamples]  Samples successfully validated'
+#### Use case
+This action can be used when multiple sources (like multiple login buttons on the page) have the same effects in the application.
+  
+#### Example
+![Multi source example chart](./images/NgRx-Actions-Example-Multi-Source.png)
+
+### Command action (multiple sources, different targets)
+This is an action with multiple sources. It has information about the specific source it was dispatched from. Targets can react accordingly to the action's source. These actions behave like an event with information about the sender of the event. 
+
+![Command chart](./images/NgRx-Actions-Type-Command.png)
+
+#### Use case
+This action can be used when multiple sources (like a an admin login button and an user login button) trigger different side effects (like loading different data after logged in) and have also a common side effect (like calling the login API).
     
 #### Example
-![Event example chart](./images/NgRx-Actions-Example-Event.png)
+![Command example chart](./images/NgRx-Actions-Example-Command.png)
 
-### Multi *action* (multiple sources, same targets)
-This is an action with multiple sources. It has no information about the specific source it was dispatched from. All targets react to the action in the same way.
+## Style Guide
+To reduce bugs from the described problems we define rules for using actions by defining different types of actions. We also define some naming conventions and file placement conventions.
 
-![Action type chart](./images/NgRx-Actions-Type-Action.png)
+### Naming convention
+    <Name><Suffix>.type = '[<Module>/<Sub module>] <Description>'
+  
+* The name of the action describes the intent of the action / next state of the application.
+* The suffix corresponds to the action types described later.
+* The module and sub module point to the location where the action is defined. It is not the location where it is used.
+* The description is a more detailed but short information about the action's intent.
 
-#### When to use it
-This action can be used when multiple sources (like multiple login buttons on the page) have the same effects in the application. The typical usecase is a target reacting to a common event.
+### SOA - State operation action (multi source action, one target)
+To make it for the developer easier to decide if using an action is safe, we seperate actions in actions manipulating the state and actions describing the application flow. The SOA action is an action manipulating the state. It should follow the CRUD guidelines.
+Whenever a source whants to change some data in the state it dispatches a SOA action. If a side effect follows the state change the source should dispatch a seperate action describing the effect.
+
+![SOA type chart](./images/NgRx-Actions-Type-SOA.png)
+
+#### Where to use it
+* The action can be dispatched from multiple sources. Mainly it should be dispatched by effects.
+* The action should be consumed by only one reducer. It is not allowed to write effects for the action.
 
 #### Where to define it
-The action should be defined near the target that handles it.
+SOA actions should be defined in a seperate action file in the state folder of the corresponding reducer.
+
+#### Precautions
+* A developer is allowed to reuse this action.
+* A developer is not allowed to add new targets for the action.
+
+#### Example
+    UpdateUserNameSOA.type = '[User/UserData] Sets a new user name'
+
+### SSA - Single source action
+This is an action describing the application flow. It has a single source and can have multiple targets. If some state change is necessary before the action is handled the source should dipsatch a seperate SOA action.
+
+![SSA type chart](./images/NgRx-Actions-Type-SSA.png)
+
+#### Where to use it
+* The action can only be dispatched by a single source.
+* The action can have multiple targets. It is not recommended to use a reducer as a target for the action.
+
+#### Where to define it
+SSA actions should be defined in a seperate action file in a module or sub module folder. One action file should describe the flow of a part of the application.
+
+#### Precautions
+* A developer is not allowed to reuse this action. But he can change the action to a MSA action, check all targets and side-effects and then reuse the action.
+* A developer is allowed to add new targets for the action. It is not recommended to write reducers for the action.
+
+#### Example
+    LoginSSA.type = '[User/Authentification] Login user with given credentials'
+
+### MSA - Multi source action (same targets)
+A MSA action is the same as a SSA action with multiple sources. All sources get the same effects by dispatching the action.
+
+![MSA type chart](./images/NgRx-Actions-Type-MSA.png)
+
+#### Where to use it
+* The action can be dispatched by multiple sources. Mainly it should be dispatched by components.
+* The action can have multiple targets. It is not recommended to use a reducer as a target for the action.
+
+#### Where to define it
+It should be defined in the same place as the corresponding SSA actions.
 
 #### Precautions
 * A developer is allowed to reuse this action. He must check all sources and targets of the action for undesired side-effects when dispatching it again.
 * A developer is allowed to add a new target for the action. He must check all sources and targets of the action for undesired side-effects produced by the new target.
 
-#### Naming convention
-See event action. The action.type describes the effect the action will trigger.
+#### Example   
+    ValidateUserMSA.type = '[User/Authentification] Check if the user is still valid'
 
-    <Intent>Action.type = '[<Module>/<Action sub module>] <Description of action>'
-    
-    LoginAction.type = '[User/Login] Login user'
-    SendSamplesAction.type = '[Samples/SendSamples] Send samples to server'
-    
-#### Example
-![Action example chart](./images/NgRx-Actions-Example-Action.png)
+### CA - Command action (multiple sources, different targets)
+The CA action is the same as a MSA action besides there can be different effects for different sources.
 
-### *Command* action (multiple sources, different targets)
-The command action is an action with multiple sources. It has information about the specific source it was dispatched from. Targets can react accordingly to the action's source.
+To use command actions the developer must implement a technique to store the source of a command. For the use case of sources behave differently after calling a command there is an already implemented command/response pattern. It is described in the corresponding NgRx-CommandAPI document.
 
-To use command actions the developer must implement a technique to store the source of a command. A command/response pattern is already implemented and can be used. It is described in the corresponding NgRx-CommandAPI document.
+![CA type chart](./images/NgRx-Actions-Type-CA.png)
 
-![Command type chart](./images/NgRx-Actions-Type-Command.png)
-
-#### When to use it
-This action can be used when multiple sources (like a logout button and a time triggered logout) trigger different side effects (like showing a different logout message to the user) and have also a common side effect (like logging out the user). The typical usecase is a target reacting to a common event with different behaviour dependent on the event source.
+#### Where to use it
+* The action can be dispatched by multiple sources. Mainly it should be dispatched by effects.
+* The action can have multiple targets. It is not recommended to use a reducer as a target for the action.
 
 #### Where to define it
-The action should be defined near the target that handles it.
+CA actions should be defined in a seperate action file. It should be placed in the sub module folder of the corresponding effects/services handling the command.
 
 #### Precautions
 * A developer is allowed to reuse this action. He must handle the new source in the desired targets of the action.
 * A developer is allowed to add a new target for the action. He must specify the sources the new target shall listen for.
 
-#### Naming convention
-See multi action.
-
-    <Intent>Command.type = '[<Module>/<Action sub module>] <Description of action>'
-    
-    LoginCommand.type = '[User/Login] Login user'
-    SendSamplesCommand.type = '[Samples/SendSamples] Send samples to server'
-    
 #### Example
-![Command example chart](./images/NgRx-Actions-Example-Command.png)
+    OpenDialogCA.type = '[Shared/Dialog] Open a confirmation dialog'
+
+## Example
+The example describes and app with some sample data which can be deleted from a sample list and an app bar. As a safe guard the user must confirm the deletion. The confirmation dialog is a reused shared component.
+
+### Folder structure
+    shared (module)
+      dialog (sub module)
+        dialog.component
+        dialog.actions
+        dialog.effects
+        ...
+    samples (feature module)
+      sampleData (sub module)
+        sampleData.model
+        state
+          sampleData.actions
+          sampleData.reducer
+          sampleData.selectors
+      samples.actions
+      samples.effects
+      sampleList.Component
+    main-page (main feature)
+      appBar (sub module)
+        appBar.component
+        appBar.effects
+      banner (sub module)
+        banner.effects
+      
+### Actions
+    shared/dialog/dialog.actions
+      DialogOpenCA.type = '[Shared/Dialog] Open a confirmation dialog'
+      DialogConfirmRA.type = '[Shared/Dialog] Dialog confirmed'
+    
+    samples/sampleData/state/sampleData.actions
+      SampleDataDeleteAllSOA = '[Samples/SampleData] Delete all sample data'
+    
+    samples/samples.actions
+      SamplesDeleteAllMSA = '[Samples] Delete all samples'
+      SamplesDeleteSuccessSSA = '[Samples] Deleted sampels successfully'
+
+### Chart
+![Example chart](./images/NgRx-Actions-Example.png)
