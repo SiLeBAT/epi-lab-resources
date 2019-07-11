@@ -1,13 +1,14 @@
 # NgRx - Actions
 
 ## Table of contents
-* [Overview of using actions](#overview)
-* [Problems with using actions](#problems)
-* [Differentiate actions](#differentiate)
-* [Style guide](#guide)
-* [Example](#example)
+* [Overview of using actions](#overviewLink)
+* [Problems with using actions](#problemsLink)
+* [Differentiate actions](#differentiateLink)
+* [Style guide](#guideLink)
+* [Example](#exampleLink)
 
-## Overview of using actions <a name="overview"></a>
+
+## Overview of using actions <a name="overviewLink"></a>
 **Style guide for defining actions**
 * https://ngrx.io/guide/store/actions
 
@@ -32,7 +33,7 @@ Both patterns change the state of the app, so these are both referenced as a tar
 
 ![Simple action chart](./images/NgRx-Actions-Simple.png)
 
-## Problems with using actions <a name="problems"></a>
+## Problems with using actions <a name="problemsLink"></a>
 By using actions it is easy to produce bugs that are difficult to trace. These bugs are mainly produced if an action has different sources and targets. So it is recommended by NgRx to use only actions with a single unique source. We decided to use also actions with different sources, but take special precautions to avoid undesired behaviour.
 
 ### Different sources
@@ -56,7 +57,7 @@ The developer writes a new target B with a side effect for an action. He is targ
 
 ![New target problem chart](./images/NgRx-Actions-Problem-New-Target.png)
 
-## Differentiating actions <a name="differentiate"></a>
+## Differentiating actions <a name="differentiateLink"></a>
 
 Actions can be differentiated by the number of sources dispatching these actions. If there are multiple sources it is also relevant if there are differnt targets for different sources.
 
@@ -93,7 +94,7 @@ This action can be used when multiple sources (like a an admin login button and 
 #### Example
 ![Command example chart](./images/NgRx-Actions-Example-Command.png)
 
-## Style Guide <a name="guide"></a>
+## Style Guide <a name="guideLink"></a>
 To reduce bugs from the described problems we define rules for using actions by defining different types of actions. We also define some naming conventions and file placement conventions.
 
 ### Naming convention
@@ -183,7 +184,7 @@ CA actions should be defined in a seperate action file. It should be placed in t
 #### Example
     OpenDialogCA.type = '[Shared/Dialog] Open a confirmation dialog'
 
-## Example <a name="example"></a>
+## Example <a name="exampleLink"></a>
 The example describes and app with some sample data which can be deleted from a sample list and an app bar. As a safe guard the user must confirm the deletion. The confirmation dialog is a reused shared component.
 
 ### Folder structure
