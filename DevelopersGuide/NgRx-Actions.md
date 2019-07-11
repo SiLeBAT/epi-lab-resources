@@ -135,7 +135,7 @@ This is an action describing the application flow. It has a single source and ca
 * The action can have multiple targets. It is not recommended to use a reducer as a target for the action.
 
 #### Where to define it
-SSA actions should be defined in a seperate action file in a module or sub module folder. One action file should describe the flow of a part of the application.
+SSA actions should be defined in a seperate action file in a module or sub module folder. The file should describe the flow of a part of the application.
 
 #### Precautions
 * A developer is not allowed to reuse this action. But he can change the action to a MSA action, check all targets and side-effects and then reuse the action.
@@ -166,7 +166,7 @@ It should be defined in the same place as the corresponding SSA actions.
 ### CA - Command action (multiple sources, different targets)
 The CA action is the same as a MSA action besides there can be different effects for different sources.
 
-To use command actions the developer must implement a technique to store the source of a command. For the use case of sources behave differently after calling a command there is an already implemented command/response pattern. It is described in the corresponding NgRx-CommandAPI document.
+To use command actions the developer must implement a technique to store the source of a command. For the use case of sources behave differently after calling a command there is an already implemented command/response pattern. It is described in our corresponding NgRx-CommandAPI document.
 
 ![CA type chart](./images/NgRx-Actions-Type-CA.png)
 
@@ -185,7 +185,7 @@ CA actions should be defined in a seperate action file. It should be placed in t
     OpenDialogCA.type = '[Shared/Dialog] Open a confirmation dialog'
 
 ## Example <a name="exampleLink"></a>
-The example describes and app with some sample data which can be deleted from a sample list and an app bar. As a safe guard the user must confirm the deletion. The confirmation dialog is a reused shared component.
+The example describes and app with some sample data which can be deleted from a sample list and an app bar. As a safe guard the user must confirm the deletion. The confirmation dialog is a reusable shared component. It uses a command/response pattern with the corresponding CA- and RA actions to demonstrate the usage of command actions.
 
 ### Folder structure
     shared (module)
