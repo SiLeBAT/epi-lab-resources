@@ -1,11 +1,13 @@
 # NgRx – Flow of actions and effects
 
-**Please first read the following documents carefully:**
-* https://ngrx.io/guide/store/actions
-* https://ngrx.io/guide/store/reducers
-* https://ngrx.io/guide/effects
+Please first read the following documents carefully:
 
-**Examplery flow:**
+* [ngrx actions](https://ngrx.io/guide/store/actions)
+* [ngrx reducers](https://ngrx.io/guide/store/reducers)
+* [ngrx effects](https://ngrx.io/guide/effects)
+
+Examplery flow:
+
 1. An action A is dispatched from a component.
 2. It is first processed by all reducers.
 3. After the new state is set by the reducers effects listening for the action are executed.
